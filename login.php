@@ -22,9 +22,6 @@
                     $message = "<p>You are welcome <b>" . escape($user->data()->username) . "<b><p>";
                     Session::flash('login', $message);
                     Redirect::to('index.php');
-                } else
-                {
-                    echo "login failed";
                 }
             } else
             //Display Errors

@@ -147,7 +147,7 @@
 						}
 						$x++;
 					}
-					$sql = "UPDATE {$table} SET {$set} WHERE {$field} {$operator} {$value}";
+					$sql = "UPDATE {$table} SET {$set} WHERE {$field} {$operator} ?";
 					if(!$this->query($sql, $fields)->error())
 					{
 						return true;

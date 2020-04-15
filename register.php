@@ -26,7 +26,7 @@
 					die($e->getMessage());	
 				}
 				Session::flash('success', 'You have registered successfully');
-				Redirect::to(404);
+				Redirect::to('login.php');
 			}else
 			{
 				foreach ($validate->errors() as $key)
