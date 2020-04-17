@@ -1,5 +1,6 @@
 <?php
 	require_once 'core/init.php';
+	
 	if(Input::exists())
 	{
 		$validate = new Validate();

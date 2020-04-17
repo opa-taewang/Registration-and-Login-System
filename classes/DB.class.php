@@ -1,3 +1,4 @@
+
 <?php 
 	//Database class
 	class DB
@@ -148,6 +149,7 @@
 						$x++;
 					}
 					$sql = "UPDATE {$table} SET {$set} WHERE {$field} {$operator} ?";
+					array_push($fields, $value);
 					if(!$this->query($sql, $fields)->error())
 					{
 						return true;

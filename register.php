@@ -1,5 +1,6 @@
 <?php
-	require_once 'core/init.php';	
+	require_once 'core/init.php';
+		
 	if(Input::exists())
 	{
 		if(Token::check(Input::get('token')))

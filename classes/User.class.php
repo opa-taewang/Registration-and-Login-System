@@ -47,10 +47,10 @@
                         <h3>Thanks for signing up!<h3>
                         <p>Your account has been created, you can login with the following credentials after you have activated your account by pressing the url below.<p>
  
-                        ------------------------
-                        Username: '.Input::get('username').' 
-                        Password: '.Input::get('password').'
-                        ------------------------
+                        <p>------------------------</p>
+                        <p>Username: '.Input::get('username').'</p> 
+                        <p>Password: '.Input::get('password').'</p>
+                        <p>------------------------</p>
  
                         <p>Please click this link to activate your account:
                         https://localhost/verify.php?salt='.$fields['salt'].'<p>
@@ -127,7 +127,7 @@
 			$verify = $this->_db->get('user', array('salt', '=', $salt));
 			if ($verify->first()->role == 0)
 			{
-				if(DB::getInstance()->update('user', array('role' => 1), array('salt', '=', $salt)))
+				if($this->_db->update('user', array('role' => 1), array('salt', '=', $salt)))
 				{
 					echo "Verification successful";
 				}
@@ -137,6 +137,82 @@
 			}
 		}
 
+		// Begin password reset
+		public function beginPasswordReset($email)
+		{
+			//$user = $this->find($email);
+			$user = $this->_db->get('user', array('email', '=', $email));
+			if($user->count())
+			{
+				$username = $user->first()->username;
+				$hash = Hash::unique();
+				$fields = array(
+					'user_id' => $user->first()->id,
+					'hash' => $hash
+				);
+				if($this->_db->insert('password_reset', $fields)){
+					// Send email
+					$subject = "Password Reset";
+					$message = '
+	                    <h3>Dear '. $username .' ,<h3>
+	                         
+	                   	<p>Click the link below to reset your password:
+	                   	https://localhost/passredirect.php?hash='.$hash.'</p>
+	                    ';
+					Email::send($email, $subject, $message);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// Redirect password reset
+		public function passRedirect($hash)
+		{
+			$getId = $this->_db->get('password_reset', array('hash', '=', $hash));
+			if($getId->count())
+			{
+				$this->_db->get('user', array('id', '=', $getId->first()->user_id));
+				Cookie::put($this->_cookieName, $hash, Config::get('remember/cookie_expiry'));
+				return true;
+			}
+			return false;
+		}
+
+		public function findHash($hash)
+		{
+			$find = $this->_db->get('password_reset', array('hash', '=', $hash));
+			if($find->count())
+			{
+				return $this->_data = $find->first();
+				return true;
+			}else
+			{
+				Cookie::delete('hash');
+			}
+			return false;
+		}
+
+		// Password reset
+		public function passwordReset($hash, $fields = array())
+		{
+			if($this->findHash($hash))
+			{
+				$update = $this->_db->update('user', $fields, array('id', '=', $this->data()->user_id));
+				if($update)
+				{
+					if ($this->_db->delete('password_reset', array('hash', '=', $hash))) 
+					{
+					Cookie::delete('hash');
+					$this->_db->delete('session', array('user_id', '=', $this->data()->user_id));
+					return true;
+					}	
+				}
+			}
+			return false;
+		}
+
+		// Check if data exists for cookie
 		public function exists()
 		{
 			return (!empty($this->_data)) ? true : false;

@@ -1,13 +1,12 @@
 <?php
 	use PHPMailer\PHPMailer\PHPMailer;
 	use PHPMailer\PHPMailer\Exception;
-	require ('vendor/autoload.php');
+	require_once 'vendor/autoload.php';
 
 	/**
 	 * 
 	 */
 	class Email{
- 
 		
 		public static function send($email, $subject, $message){
 			$mail = new PHPMailer;
